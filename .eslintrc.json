@@ -1,0 +1,81 @@
+{
+  "overrides": [
+    {
+      "files": ["*.ts"],
+      "excludedFiles": ["*.spec.ts"],
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "project": "./tsconfig.json",
+        "ecmaVersion": 2018,
+        "sourceType": "module"
+      },
+      "extends": [
+        "@ai-foundation/eslint-config",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:import/errors",
+        "plugin:import/warnings",
+        "plugin:import/typescript"
+      ],
+      "globals": {
+        "logger": true
+      },
+      "plugins": [ "@typescript-eslint", "import" ],
+      "rules": {
+        "prettier/prettier": [
+          2,
+          {
+            // we need to specify the parser here for prettier to work with typescript
+            // once we migrate all the javascript files, update @ai-foundation/eslint-configc
+            "parser": "typescript", 
+            "semi": false,
+            "trailingComma": "es5",
+            "singleQuote": true,
+            "printWidth": 120,
+            "tabWidth": 2
+          }
+        ],
+        "@typescript-eslint/indent": [ "error", 2 ],
+        "import/prefer-default-export": 0,
+        "@typescript-eslint/no-explicit-any": 0,
+        "@typescript-eslint/explicit-member-accessibility": 0,
+        "@typescript-eslint/member-delimiter-style": 0, // this is conflicting with prettier
+        "import/namespace": 0, // temporary disable until all the js files are gone
+        "import/extensions": [2, "never"],
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "consistent-return": 0
+      },
+      "settings": {
+        "import/resolver": { "node": { "paths": ["src"] } },
+        "import/extensions": [".tsx", ".ts"],
+        "import/parsers": {
+          "@typescript-eslint/parser": [".ts", ".tsx"]
+        }
+     }
+    },
+    {
+      "files": ["*.spec.ts", "src/test/**/*.ts"],
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "project": "./tsconfig.json",
+        "ecmaVersion": 2018,
+        "sourceType": "module"
+      },
+      "rules": {
+        "prettier/prettier": [
+          2,
+          {
+            "parser": "typescript", 
+            "semi": false,
+            "trailingComma": "es5",
+            "singleQuote": true,
+            "printWidth": 120,
+            "tabWidth": 2
+          }
+        ]
+      },
+      "env": {
+        "jest": true
+      }
+    }
+  ]
+}

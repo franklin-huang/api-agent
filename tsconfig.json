@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "declarationDir": "./dist",
+    "outDir": "./dist",
+    "sourceMap": true,
+    "target": "es5",
+    "esModuleInterop": true,
+    "baseUrl": "./src",
+    "lib": ["esnext"]
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules/**/*",
+    "./rollup.config.js"
+  ]
+}
