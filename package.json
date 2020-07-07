@@ -1,6 +1,6 @@
 {
   "name": "api-agent",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "a lib for making api request",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
