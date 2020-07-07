@@ -1,4 +1,4 @@
-# @ai-foundation/request
+# api-agent
 
 A library to simplify api request
 
@@ -7,13 +7,13 @@ A library to simplify api request
 Using yarn:
 
 ```sh
-yarn add @ai-foundation/request
+yarn add api-agent
 ```
 
 ## Example
 
 ```javascript
-import request from '@ai-foundation/request'
+import request from 'api-agent'
 
 // required
 const baseURL = 'http://localhost:3000'
@@ -26,7 +26,7 @@ const pathMap = {
 const API = new request({
   baseURL,
   pathMap,
-  withCredentials: true //optional
+  withCredentials: true // optional
 })
 
 // Add custom headers

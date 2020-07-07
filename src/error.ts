@@ -1,5 +1,5 @@
 class PathNotFoundErr extends Error {
-  constructor(pathName = '', ...params: any[]) {
+  constructor(pathName: string | number = '', ...params: any[]) {
     super(...params)
 
     // eslint-disable-next-line

@@ -1,14 +1,15 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios'
+import axios, { AxiosInstance, AxiosError } from 'axios'
 import { PathNotFoundErr, ParamRequiredErr } from './error'
 
-interface OptionsType {
-  pathMap: { [key: string]: string }
+interface OptionsType<T> {
+  pathMap: T
   baseURL: string
   withCredentials?: boolean
+  defaultErrorHandler?: (reason: AxiosError) => any
 }
 
 interface ParamsType {
-  [key: string]: string | number
+  [key: string]: string
 }
 interface GetOptsType {
   params?: ParamsType
@@ -22,13 +23,12 @@ interface PostOptsType {
 
 const PARAM_PATTERN = /:[_0-9a-zA-Z]*/g
 
-class Request {
-  pathMap: { [key: string]: string }
+class Request<T extends { [key: string]: string }> {
+  pathMap: T
   request: AxiosInstance
-  onError: ((reason: any) => AxiosResponse) | null = null
-  headers: { [key: string]: string } | null = null
+  headers: { [key: string]: string } | undefined
 
-  constructor(options: OptionsType) {
+  constructor(options: OptionsType<T>) {
     if (!options.pathMap) throw new Error('pathMap option is required')
     if (!options.baseURL) throw new Error('baseURL option is required')
 
@@ -44,9 +44,9 @@ class Request {
    *
    * @params {string} pathName - The object key in path map
    */
-  _getPath(pathName: string) {
+  _getPath(pathName: keyof T) {
     const path = this.pathMap[pathName]
-    if (!path) throw new PathNotFoundErr(pathName)
+    if (!path) throw new PathNotFoundErr(pathName as string)
 
     return path
   }
@@ -81,7 +81,7 @@ class Request {
    * @params {string} pathName - The object key in path map
    * @params {Object} params - URL parameters map
    */
-  _parsePath(pathName: string, params: ParamsType = {}) {
+  _parsePath(pathName: keyof T, params: ParamsType = {}) {
     const path = this._getPath(pathName)
     const encodedParams = Object.entries(params).reduce(
       (acc, [key, value]) => ({ ...acc, [key]: encodeURIComponent(value) }),
@@ -96,15 +96,6 @@ class Request {
    */
   _newXSelectorHeaderVal = () => Math.round(Math.random() * 1000000)
 
-  /**
-   * _handleErr: will regenerate the x-selector header value if x-selector is required
-   *             and the request fails.
-   */
-  _handleErr = (err: AxiosResponse) => {
-    if (this.onError) return this.onError(err)
-    return Promise.reject(err)
-  }
-
   setHeaders = (headers: { [key: string]: string }) => (this.headers = headers)
 
   /**
@@ -113,10 +104,10 @@ class Request {
    * @param {string} pathName - The object key in path map
    * @param {Object} opts - Only accept 'params' and 'queries'
    */
-  get(pathName: string, opts: GetOptsType = {}) {
+  get(pathName: keyof T, opts: GetOptsType = {}) {
     const path = this._parsePath(pathName, opts.params)
 
-    return this.request.get(path, { headers: this.headers, params: opts.queries }).catch(this._handleErr)
+    return this.request.get(path, { headers: this.headers, params: opts.queries })
   }
 
   /**
@@ -125,12 +116,10 @@ class Request {
    * @param {string} pathName - The object key in path map
    * @param {Object} opts - Only accept 'params' and 'body'
    */
-  post(pathName: string, opts: PostOptsType = {}) {
+  post(pathName: keyof T, opts: PostOptsType = {}) {
     const path = this._parsePath(pathName, opts && opts.params)
 
-    return this.request
-      .post(path, opts && opts.body, { headers: this.headers, params: opts.queries })
-      .catch(this._handleErr)
+    return this.request.post(path, opts && opts.body, { headers: this.headers, params: opts.queries })
   }
 
   /**
@@ -139,10 +128,10 @@ class Request {
    * @param {string} pathName - The object key in path map
    * @param {Object} opts - Only accept 'params' and 'body'
    */
-  put(pathName: string, opts: PostOptsType = {}) {
+  put(pathName: keyof T, opts: PostOptsType = {}) {
     const path = this._parsePath(pathName, opts.params)
 
-    return this.request.put(path, opts.body, { headers: this.headers, params: opts.queries }).catch(this._handleErr)
+    return this.request.put(path, opts.body, { headers: this.headers, params: opts.queries })
   }
 
   /**
@@ -151,16 +140,14 @@ class Request {
    * @param {string} pathName - The object key in path map
    * @param {Object} opts - Only accept 'params' and 'body'
    */
-  delete(pathName: string, opts: PostOptsType = {}) {
+  delete(pathName: keyof T, opts: PostOptsType = {}) {
     const path = this._parsePath(pathName, opts.params)
 
-    return this.request
-      .delete(path, {
-        data: opts.body,
-        params: opts.queries,
-        headers: this.headers,
-      })
-      .catch(this._handleErr)
+    return this.request.delete(path, {
+      data: opts.body,
+      params: opts.queries,
+      headers: this.headers,
+    })
   }
 }
 
